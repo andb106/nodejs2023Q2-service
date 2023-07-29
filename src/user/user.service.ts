@@ -20,6 +20,10 @@ export class UserService {
   }
 
   findOne(id: string) {
+    const userFound = this.storage.getUserById(id);
+    if (!userFound) {
+      throw new NotFoundException('User not found');
+    }
     return this.storage.getUserById(id);
   }
 
