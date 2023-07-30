@@ -1,4 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { CreateAlbumDto } from 'src/album/dto/create-album.dto';
+import { UpdateAlbumDto } from 'src/album/dto/update-album.dto';
+import { Album } from 'src/album/entities/album.entity';
 import { CreateArtistDto } from 'src/artist/dto/create-artist.dto';
 import { UpdateArtistDto } from 'src/artist/dto/update-artist.dto';
 import { Artist } from 'src/artist/entities/artist.entity';
@@ -15,6 +18,7 @@ export class InMemoryStorageService {
   private users: User[] = [];
   private tracks: Track[] = [];
   private artists: Artist[] = [];
+  private albums: Album[] = [];
 
   constructor() {
     console.log('database created');
@@ -155,5 +159,52 @@ export class InMemoryStorageService {
   updateArtist(id: string, updateArtistDto: UpdateArtistDto) {
     const artistForUpdate = this.artists.find((artist) => artist.id === id);
     return Object.assign(artistForUpdate, updateArtistDto);
+  }
+
+  // ALBUMS
+  getAlbums() {
+    return this.albums;
+  }
+
+  getAlbumById(id: string) {
+    return this.albums.find((album) => album.id === id);
+  }
+
+  deleteAlbum(id: string) {
+    const albumToDelete = this.albums.find((album) => album.id === id);
+
+    if (albumToDelete) {
+      this.albums = this.albums.filter((artist) => artist.id !== id);
+
+      const trackByAlbum = this.tracks.find(
+        (track) => track.albumId === albumToDelete.id,
+      );
+
+      if (trackByAlbum) {
+        Object.assign(trackByAlbum, { albumId: null });
+      }
+
+      return true;
+    }
+
+    return false;
+  }
+
+  createAlbum(createAlbumDto: CreateAlbumDto) {
+    const newAlbum = new Album();
+
+    Object.assign(newAlbum, {
+      id: uuidv4(),
+      ...createAlbumDto,
+    });
+
+    this.albums.push(newAlbum);
+
+    return newAlbum;
+  }
+
+  updateAlbum(id: string, updateAlbumDto: UpdateAlbumDto) {
+    const artistForUpdate = this.albums.find((album) => album.id === id);
+    return Object.assign(artistForUpdate, updateAlbumDto);
   }
 }
