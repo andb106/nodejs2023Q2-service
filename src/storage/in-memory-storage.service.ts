@@ -8,9 +8,13 @@ import { User } from 'src/user/entities/user.entity';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
-export class InMemoryStorage {
+export class InMemoryStorageService {
   private users: User[] = [];
   private tracks: Track[] = [];
+
+  constructor() {
+    console.log('database created');
+  }
 
   //USERS
 

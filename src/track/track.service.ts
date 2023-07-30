@@ -1,11 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
-import { InMemoryStorage } from 'src/storage/in-memory-storage';
+import { InMemoryStorageService } from 'src/storage/in-memory-storage.service';
 
 @Injectable()
 export class TrackService {
-  constructor(private storage: InMemoryStorage) {}
+  constructor(private storage: InMemoryStorageService) {}
 
   create(createTrackDto: CreateTrackDto) {
     return this.storage.createTrack(createTrackDto);

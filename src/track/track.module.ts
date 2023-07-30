@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { TrackService } from './track.service';
 import { TrackController } from './track.controller';
-import { InMemoryStorage } from 'src/storage/in-memory-storage';
+import { InMemoryStorageModule } from 'src/storage/in-memory-storage.module';
 
 @Module({
   controllers: [TrackController],
-  providers: [TrackService, InMemoryStorage],
+  providers: [TrackService],
+  imports: [InMemoryStorageModule],
 })
 export class TrackModule {}
