@@ -5,6 +5,7 @@ import { Album } from 'src/album/entities/album.entity';
 import { CreateArtistDto } from 'src/artist/dto/create-artist.dto';
 import { UpdateArtistDto } from 'src/artist/dto/update-artist.dto';
 import { Artist } from 'src/artist/entities/artist.entity';
+import { Favorites } from 'src/favs/entities/fav.entity';
 import { CreateTrackDto } from 'src/track/dto/create-track.dto';
 import { UpdateTrackDto } from 'src/track/dto/update-track.dto';
 import { Track } from 'src/track/entities/track.entity';
@@ -19,6 +20,11 @@ export class InMemoryStorageService {
   private tracks: Track[] = [];
   private artists: Artist[] = [];
   private albums: Album[] = [];
+  private favorites: Favorites = {
+    albums: [],
+    artists: [],
+    tracks: [],
+  };
 
   constructor() {
     console.log('database created');
@@ -90,6 +96,9 @@ export class InMemoryStorageService {
     const trackToDelete = this.tracks.find((track) => track.id === id);
     if (trackToDelete) {
       this.tracks = this.tracks.filter((track) => track.id !== id);
+
+      this.deleteTrackFromFavorites(id);
+
       return true;
     }
     return false;
@@ -136,6 +145,16 @@ export class InMemoryStorageService {
       if (trackByArtist) {
         Object.assign(trackByArtist, { artistId: null });
       }
+
+      const albumByArtist = this.albums.find(
+        (album) => album.artistId === artistToDelete.id,
+      );
+
+      if (albumByArtist) {
+        Object.assign(albumByArtist, { artistId: null });
+      }
+
+      this.deleteArtistFromFavorites(id);
 
       return true;
     }
@@ -184,6 +203,8 @@ export class InMemoryStorageService {
         Object.assign(trackByAlbum, { albumId: null });
       }
 
+      this.deleteAlbumFromFavorites(id);
+
       return true;
     }
 
@@ -206,5 +227,89 @@ export class InMemoryStorageService {
   updateAlbum(id: string, updateAlbumDto: UpdateAlbumDto) {
     const artistForUpdate = this.albums.find((album) => album.id === id);
     return Object.assign(artistForUpdate, updateAlbumDto);
+  }
+
+  // FAVORITES
+
+  getFavoritesIds() {
+    return this.favorites;
+  }
+
+  addArtistToFavorites(id: string) {
+    const artistFound = this.getArtistById(id);
+
+    if (!artistFound) {
+      return false;
+    }
+
+    if (!this.favorites.artists.includes(id)) {
+      this.favorites.artists.push(id);
+    }
+
+    return true;
+  }
+
+  addAlbumToFavorites(id: string) {
+    const albumFound = this.getAlbumById(id);
+
+    if (!albumFound) {
+      return false;
+    }
+
+    if (!this.favorites.albums.includes(id)) {
+      this.favorites.albums.push(id);
+    }
+
+    return true;
+  }
+
+  addTrackToFavorites(id: string) {
+    const trackFound = this.getTrackById(id);
+
+    if (!trackFound) {
+      return false;
+    }
+
+    if (!this.favorites.tracks.includes(id)) {
+      this.favorites.tracks.push(id);
+    }
+
+    return true;
+  }
+
+  deleteArtistFromFavorites(id: string) {
+    if (!this.favorites.artists.includes(id)) {
+      return false;
+    }
+
+    this.favorites.artists = this.favorites.artists.filter(
+      (artistId) => artistId !== id,
+    );
+
+    return true;
+  }
+
+  deleteAlbumFromFavorites(id: string) {
+    if (!this.favorites.albums.includes(id)) {
+      return false;
+    }
+
+    this.favorites.albums = this.favorites.albums.filter(
+      (albumId) => albumId !== id,
+    );
+
+    return true;
+  }
+
+  deleteTrackFromFavorites(id: string) {
+    if (!this.favorites.tracks.includes(id)) {
+      return false;
+    }
+
+    this.favorites.tracks = this.favorites.tracks.filter(
+      (trackId) => trackId !== id,
+    );
+
+    return true;
   }
 }
