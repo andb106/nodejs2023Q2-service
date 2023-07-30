@@ -27,7 +27,7 @@ export class TrackService {
     const trackForUpdate = this.storage.getTrackById(id);
 
     if (!trackForUpdate) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('Track not found');
     }
 
     return this.storage.updateTrack(id, updateTrackDto);
@@ -36,7 +36,7 @@ export class TrackService {
   remove(id: string) {
     const res = this.storage.deleteTrack(id);
     if (!res) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('Track not found');
     }
     return res;
   }

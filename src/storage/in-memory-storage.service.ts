@@ -1,4 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { CreateArtistDto } from 'src/artist/dto/create-artist.dto';
+import { UpdateArtistDto } from 'src/artist/dto/update-artist.dto';
+import { Artist } from 'src/artist/entities/artist.entity';
 import { CreateTrackDto } from 'src/track/dto/create-track.dto';
 import { UpdateTrackDto } from 'src/track/dto/update-track.dto';
 import { Track } from 'src/track/entities/track.entity';
@@ -11,6 +14,7 @@ import { v4 as uuidv4 } from 'uuid';
 export class InMemoryStorageService {
   private users: User[] = [];
   private tracks: Track[] = [];
+  private artists: Artist[] = [];
 
   constructor() {
     console.log('database created');
@@ -90,15 +94,6 @@ export class InMemoryStorageService {
   createTrack(createTrackDto: CreateTrackDto) {
     const newTrack = new Track();
 
-    // const newUserData: User = {
-    //   id: uuidv4(),
-    //   login,
-    //   password,
-    //   version: 1,
-    //   createdAt: Date.now(),
-    //   updatedAt: Date.now(),
-    // };
-
     Object.assign(newTrack, {
       id: uuidv4(),
       ...createTrackDto,
@@ -111,13 +106,54 @@ export class InMemoryStorageService {
 
   updateTrack(id: string, updateTrackDto: UpdateTrackDto) {
     const userForUpdate = this.tracks.find((track) => track.id === id);
-
-    // const newUserData = {
-    //   password: updatePasswordDto.newPassword,
-    //   version: ++userForUpdate.version,
-    //   updatedAt: Date.now(),
-    // };
-
     return Object.assign(userForUpdate, updateTrackDto);
+  }
+
+  // ARTISTS
+
+  getArtists() {
+    return this.artists;
+  }
+
+  getArtistById(id: string) {
+    return this.artists.find((artist) => artist.id === id);
+  }
+
+  deleteArtist(id: string) {
+    const artistToDelete = this.artists.find((artist) => artist.id === id);
+
+    if (artistToDelete) {
+      this.artists = this.artists.filter((artist) => artist.id !== id);
+
+      const trackByArtist = this.tracks.find(
+        (track) => track.artistId === artistToDelete.id,
+      );
+
+      if (trackByArtist) {
+        Object.assign(trackByArtist, { artistId: null });
+      }
+
+      return true;
+    }
+
+    return false;
+  }
+
+  createArtist(createArtistDto: CreateArtistDto) {
+    const newArtist = new Artist();
+
+    Object.assign(newArtist, {
+      id: uuidv4(),
+      ...createArtistDto,
+    });
+
+    this.artists.push(newArtist);
+
+    return newArtist;
+  }
+
+  updateArtist(id: string, updateArtistDto: UpdateArtistDto) {
+    const artistForUpdate = this.artists.find((artist) => artist.id === id);
+    return Object.assign(artistForUpdate, updateArtistDto);
   }
 }
