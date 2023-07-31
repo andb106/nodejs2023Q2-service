@@ -1,0 +1,43 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { CreateTrackDto } from './dto/create-track.dto';
+import { UpdateTrackDto } from './dto/update-track.dto';
+import { InMemoryStorageService } from 'src/storage/in-memory-storage.service';
+
+@Injectable()
+export class TrackService {
+  constructor(private storage: InMemoryStorageService) {}
+
+  create(createTrackDto: CreateTrackDto) {
+    return this.storage.createTrack(createTrackDto);
+  }
+
+  findAll() {
+    return this.storage.getTracks();
+  }
+
+  findOne(id: string) {
+    const trackFound = this.storage.getTrackById(id);
+    if (!trackFound) {
+      throw new NotFoundException('Track not found');
+    }
+    return trackFound;
+  }
+
+  update(id: string, updateTrackDto: UpdateTrackDto) {
+    const trackForUpdate = this.storage.getTrackById(id);
+
+    if (!trackForUpdate) {
+      throw new NotFoundException('Track not found');
+    }
+
+    return this.storage.updateTrack(id, updateTrackDto);
+  }
+
+  remove(id: string) {
+    const res = this.storage.deleteTrack(id);
+    if (!res) {
+      throw new NotFoundException('Track not found');
+    }
+    return res;
+  }
+}

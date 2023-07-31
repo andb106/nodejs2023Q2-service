@@ -9,6 +9,7 @@
 
 ```
 git clone {repository URL}
+switch to develop branch
 ```
 
 ## Installing NPM modules
@@ -23,9 +24,10 @@ npm install
 npm start
 ```
 
-After starting the app on port (4000 as default) you can open
-in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
-For more information about OpenAPI/Swagger please visit https://swagger.io/.
+The app starts on port (4000 as default)
+To change port use .env file
+Available endpoints description: https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments/rest-service/assignment.md
+
 
 ## Testing
 
