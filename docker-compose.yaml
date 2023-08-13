@@ -1,5 +1,6 @@
 services:
   app:
+    container_name: homelib-app
     build:
       context: .
       dockerfile: Dockerfile
@@ -12,6 +13,8 @@ services:
     working_dir: /app
     volumes:
       - .src/:/app/src
+    networks:
+      - homelib-net
     restart: always
 
   postgres:
@@ -22,6 +25,8 @@ services:
       - .env
     volumes:
       - postgress-db-volume:/var/lib/postgresql/data
+    networks:
+      - homelib-net
     ports:
       - ${POSTGRES_PORT}:${POSTGRES_PORT}
     restart: always
@@ -29,3 +34,7 @@ services:
 
 volumes:
   postgress-db-volume:
+
+networks:
+  homelib-net:
+    driver: bridge
