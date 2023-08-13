@@ -1,0 +1,31 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    ports:
+      - ${PORT}:${PORT}
+    working_dir: /app
+    volumes:
+      - .src/:/app/src
+    restart: always
+
+  postgres:
+    build:
+      context: .
+      dockerfile: Dockerfile-postgres
+    env_file:
+      - .env
+    volumes:
+      - postgress-db-volume:/var/lib/postgresql/data
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    restart: always
+
+
+volumes:
+  postgress-db-volume:
