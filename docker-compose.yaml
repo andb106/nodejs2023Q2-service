@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   app:
     container_name: homelib-app
@@ -12,7 +14,9 @@ services:
       - ${PORT}:${PORT}
     working_dir: /app
     volumes:
-      - .src/:/app/src
+      - type: bind
+        source: ./static
+        target: /opt/app/static
     networks:
       - homelib-net
     restart: always
