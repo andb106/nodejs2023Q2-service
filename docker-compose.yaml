@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  app:
+    container_name: homelib-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    ports:
+      - ${PORT}:${PORT}
+    working_dir: /app
+    volumes:
+      - type: bind
+        source: ./static
+        target: /opt/app/static
+    networks:
+      - homelib-net
+    restart: always
+
+  postgres:
+    build:
+      context: .
+      dockerfile: Dockerfile-postgres
+    env_file:
+      - .env
+    volumes:
+      - postgress-db-volume:/var/lib/postgresql/data
+    networks:
+      - homelib-net
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    restart: always
+
+
+volumes:
+  postgress-db-volume:
+
+networks:
+  homelib-net:
+    driver: bridge

@@ -11,25 +11,46 @@ import { InMemoryStorageService } from 'src/storage/in-memory-storage.service';
 export class UserService {
   constructor(private storage: InMemoryStorageService) {}
 
-  create(createUserDto: CreateUserDto) {
-    return this.storage.createUser(createUserDto);
+  async create(createUserDto: CreateUserDto) {
+    const createdUser = await this.storage.createUser(createUserDto);
+    return {
+      id: createdUser.id,
+      login: createdUser.login,
+      version: createdUser.version,
+      createdAt: new Date(createdUser.createdAt).getTime(),
+      updatedAt: new Date(createdUser.updatedAt).getTime(),
+    };
   }
 
-  findAll() {
-    return this.storage.getUsers();
+  async findAll() {
+    const users = await this.storage.getUser();
+    return users.map((user) => {
+      return {
+        id: user.id,
+        login: user.login,
+        version: user.version,
+        createdAt: new Date(user.createdAt).getTime(),
+        updatedAt: new Date(user.updatedAt).getTime(),
+      };
+    });
   }
 
-  findOne(id: string) {
-    const userFound = this.storage.getUserById(id);
+  async findOne(id: string) {
+    const userFound = await this.storage.getUserById(id);
     if (!userFound) {
       throw new NotFoundException('User not found');
     }
-    return this.storage.getUserById(id);
+    return {
+      id: userFound.id,
+      login: userFound.login,
+      version: userFound.version,
+      createdAt: new Date(userFound.createdAt).getTime(),
+      updatedAt: new Date(userFound.updatedAt).getTime(),
+    };
   }
 
-  update(id: string, updatePasswordDto: UpdatePasswordDto) {
-    const userForUpdate = this.storage.getUserById(id);
-
+  async update(id: string, updatePasswordDto: UpdatePasswordDto) {
+    const userForUpdate = await this.storage.getUserById(id);
     if (!userForUpdate) {
       throw new NotFoundException('User not found');
     }
@@ -38,11 +59,19 @@ export class UserService {
       throw new ForbiddenException('Old password is wrong');
     }
 
-    return this.storage.updateUser(id, updatePasswordDto);
+    const userUpdated = await this.storage.updateUser(id, updatePasswordDto);
+
+    return {
+      id: userUpdated.id,
+      login: userUpdated.login,
+      version: userUpdated.version,
+      createdAt: new Date(userUpdated.createdAt).getTime(),
+      updatedAt: new Date(userUpdated.updatedAt).getTime(),
+    };
   }
 
-  remove(id: string) {
-    const res = this.storage.deleteUser(id);
+  async remove(id: string) {
+    const res = await this.storage.deleteUser(id);
     if (!res) {
       throw new NotFoundException('User not found');
     }

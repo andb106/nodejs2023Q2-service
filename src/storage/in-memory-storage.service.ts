@@ -11,12 +11,11 @@ import { UpdateTrackDto } from 'src/track/dto/update-track.dto';
 import { Track } from 'src/track/entities/track.entity';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { UpdatePasswordDto } from 'src/user/dto/update-user-password.dto';
-import { User } from 'src/user/entities/user.entity';
 import { v4 as uuidv4 } from 'uuid';
+import { PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class InMemoryStorageService {
-  private users: User[] = [];
   private tracks: Track[] = [];
   private artists: Artist[] = [];
   private albums: Album[] = [];
@@ -26,60 +25,64 @@ export class InMemoryStorageService {
     tracks: [],
   };
 
-  constructor() {
-    console.log('database created');
-  }
+  private prisma = new PrismaClient();
 
   //USERS
 
-  getUsers() {
-    return this.users;
+  async getUser() {
+    const user123data = await this.prisma.user123.findMany();
+    return user123data;
   }
 
-  getUserById(id: string) {
-    return this.users.find((user) => user.id === id);
+  async getUserById(id: string) {
+    return await this.prisma.user123.findUnique({
+      where: {
+        id: id,
+      },
+    });
   }
 
-  deleteUser(id: string) {
-    const userToDelete = this.users.find((user) => user.id === id);
+  async deleteUser(id: string) {
+    const userToDelete = await this.prisma.user123.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
     if (userToDelete) {
-      this.users = this.users.filter((user) => user.id !== id);
+      await this.prisma.user123.delete({
+        where: {
+          id: id,
+        },
+      });
       return true;
     }
     return false;
   }
 
-  createUser(createUserDto: CreateUserDto) {
+  async createUser(createUserDto: CreateUserDto) {
     const { login, password } = createUserDto;
 
-    const newUser = new User();
+    const newUser123 = await this.prisma.user123.create({
+      data: {
+        login,
+        password,
+      },
+    });
 
-    const newUserData: User = {
-      id: uuidv4(),
-      login,
-      password,
-      version: 1,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    };
-
-    Object.assign(newUser, newUserData);
-
-    this.users.push(newUser);
-
-    return newUser;
+    return newUser123;
   }
 
-  updateUser(id: string, updatePasswordDto: UpdatePasswordDto) {
-    const userForUpdate = this.users.find((user) => user.id === id);
+  async updateUser(id: string, updatePasswordDto: UpdatePasswordDto) {
+    const userForUpdate = await this.prisma.user123.update({
+      where: { id },
+      data: {
+        password: updatePasswordDto.newPassword,
+        version: { increment: 1 },
+      },
+    });
 
-    const newUserData = {
-      password: updatePasswordDto.newPassword,
-      version: ++userForUpdate.version,
-      updatedAt: Date.now(),
-    };
-
-    return Object.assign(userForUpdate, newUserData);
+    return userForUpdate;
   }
 
   //TRACKS
